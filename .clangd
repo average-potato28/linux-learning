@@ -1,0 +1,16 @@
+CompileFlags:
+  Add:
+    - "-std=gnu11"
+    - "-ffreestanding"
+    - "-fno-stack-protector"
+    - "-fno-PIC"
+    - "-m64"
+    - "-march=x86-64"
+    - "-mno-red-zone"
+    - "-mcmodel=kernel"
+    - "-nostdinc"
+    - "-I${workspaceFolder}/kernel/src"
+    - "-I${workspaceFolder}/kernel/limine-protocol/include"
+    - "-isystem"
+    - "${workspaceFolder}/kernel/freestanding-c-hdrs/include"
+    - "-D__x86_64__"

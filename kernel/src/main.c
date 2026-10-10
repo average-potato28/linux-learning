@@ -1,8 +1,9 @@
+
 #include <stdint.h>
 #include <stddef.h>
 #include <stdbool.h>
 #include <limine.h>
-
+#include <uart.h>
 // Set the base revision to 6, this is recommended as this is the latest
 // base revision described by the Limine boot protocol specification.
 // See specification for further info.
@@ -43,6 +44,9 @@ static void hcf(void) {
     }
 }
 
+
+#include "debugcon.h"
+
 // Scale an 8-bit colour channel value to the size the framebuffer gives the
 // channel and move it into place within a pixel.
 static uint32_t fb_channel(uint8_t value, uint8_t mask_size, uint8_t mask_shift) {
@@ -76,27 +80,28 @@ static void fb_pattern(struct limine_framebuffer *fb) {
 void kmain(void) {
     // Ensure the bootloader actually understands our base revision (see spec).
     if (LIMINE_BASE_REVISION_SUPPORTED(limine_base_revision) == false) {
+        debugcon_puts("[ERROR] Limine base revision not supported!\n");
         hcf();
     }
 
-    // Ensure we got a framebuffer.
-    if (framebuffer_request.response == NULL
-     || framebuffer_request.response->framebuffer_count < 1) {
-        hcf();
-    }
+    kprintf("\n========================================\n");
+    kprintf(">>> Hello from QEMU debugcon port 0xE9! <<<\n");
+    kprintf("Kernel entry reached successfully.\n");
+    kprintf("Limine base revision ptr: %p\n", limine_base_revision);
 
-    // Print the pattern to every framebuffer.
-    for (uint64_t i = 0; i < framebuffer_request.response->framebuffer_count; i++) {
-        struct limine_framebuffer *framebuffer = framebuffer_request.response->framebuffers[i];
-
-        // Ensure the framebuffer has 32-bit RGB pixels, the only kind we handle.
-        if (framebuffer->memory_model != LIMINE_FRAMEBUFFER_RGB || framebuffer->bpp != 32) {
-            hcf();
+    if (framebuffer_request.response == NULL || framebuffer_request.response->framebuffer_count < 1) {
+        kprintf("[WARN] No framebuffer response from bootloader.\n");
+    } else {
+        struct limine_framebuffer *fb = framebuffer_request.response->framebuffers[0];
+        kprintf("[INFO] Framebuffer initialized: %ux%u, %u bpp\n", fb->width, fb->height, fb->bpp);
+        if (fb->memory_model == LIMINE_FRAMEBUFFER_RGB && fb->bpp == 32) {
+            fb_pattern(fb);
+            kprintf("[INFO] Displayed test pattern to framebuffer.\n");
         }
-
-        fb_pattern(framebuffer);
     }
-
+    kprintf("========================================\n\n");
+    uart_init();
+    uart_write("hola mi amigo\n");
     // We're done, just hang...
     hcf();
 }

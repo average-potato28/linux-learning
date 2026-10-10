@@ -1,0 +1,147 @@
+{
+  "Limine Request": {
+    "prefix": "liminereq",
+    "body": [
+      "__attribute__((used, section(\".limine_requests\")))",
+      "static volatile struct limine_${1:framebuffer}_request ${1:framebuffer}_request = {",
+      "    .id = LIMINE_${1/(.*)/${1:/upcase}/}_REQUEST_ID,",
+      "    .revision = 0",
+      "};"
+    ],
+    "description": "Boilerplate for a Limine protocol request"
+  },
+  "Port I/O inb": {
+    "prefix": "inb",
+    "body": [
+      "static inline uint8_t inb(uint16_t port) {",
+      "    uint8_t ret;",
+      "    __asm__ volatile (\"inb %1, %0\" : \"=a\"(ret) : \"Nd\"(port));",
+      "    return ret;",
+      "}"
+    ],
+    "description": "x86 port I/O read byte (inb)"
+  },
+  "Port I/O outb": {
+    "prefix": "outb",
+    "body": [
+      "static inline void outb(uint16_t port, uint8_t val) {",
+      "    __asm__ volatile (\"outb %0, %1\" : : \"a\"(val), \"Nd\"(port));",
+      "}"
+    ],
+    "description": "x86 port I/O write byte (outb)"
+  },
+  "Port I/O inl": {
+    "prefix": "inl",
+    "body": [
+      "static inline uint32_t inl(uint16_t port) {",
+      "    uint32_t ret;",
+      "    __asm__ volatile (\"inl %1, %0\" : \"=a\"(ret) : \"Nd\"(port));",
+      "    return ret;",
+      "}"
+    ],
+    "description": "x86 port I/O read 32-bit dword (inl)"
+  },
+  "Port I/O outl": {
+    "prefix": "outl",
+    "body": [
+      "static inline void outl(uint16_t port, uint32_t val) {",
+      "    __asm__ volatile (\"outl %0, %1\" : : \"a\"(val), \"Nd\"(port));",
+      "}"
+    ],
+    "description": "x86 port I/O write 32-bit dword (outl)"
+  },
+  "CPU Halt and Catch Fire": {
+    "prefix": "hcf",
+    "body": [
+      "static void hcf(void) {",
+      "    for (;;) {",
+      "        __asm__ volatile (\"hlt\");",
+      "    }",
+      "}"
+    ],
+    "description": "Infinite CPU halt loop"
+  },
+  "Disable Interrupts (cli)": {
+    "prefix": "cli",
+    "body": [
+      "__asm__ volatile (\"cli\");"
+    ],
+    "description": "Clear interrupt flag"
+  },
+  "Enable Interrupts (sti)": {
+    "prefix": "sti",
+    "body": [
+      "__asm__ volatile (\"sti\");"
+    ],
+    "description": "Set interrupt flag"
+  },
+  "Inline Assembly Block": {
+    "prefix": "asmvol",
+    "body": [
+      "__asm__ volatile (",
+      "    \"${1:nop}\"",
+      "    : ${2:/* output operands */}",
+      "    : ${3:/* input operands */}",
+      "    : ${4:/* clobbers */}",
+      ");"
+    ],
+    "description": "Extended GCC inline assembly template"
+  },
+  "Read CR3 Register": {
+    "prefix": "read_cr3",
+    "body": [
+      "static inline uint64_t read_cr3(void) {",
+      "    uint64_t val;",
+      "    __asm__ volatile (\"mov %%cr3, %0\" : \"=r\"(val));",
+      "    return val;",
+      "}"
+    ],
+    "description": "Read x86_64 CR3 register (Page Table Base)"
+  },
+  "Write CR3 Register": {
+    "prefix": "write_cr3",
+    "body": [
+      "static inline void write_cr3(uint64_t val) {",
+      "    __asm__ volatile (\"mov %0, %%cr3\" : : \"r\"(val) : \"memory\");",
+      "}"
+    ],
+    "description": "Load x86_64 CR3 register and flush TLB"
+  },
+  "Paging Alignment Macros": {
+    "prefix": "page_macros",
+    "body": [
+      "#define PAGE_SIZE 4096ULL",
+      "#define PAGE_MASK (~(PAGE_SIZE - 1))",
+      "#define ALIGN_UP(addr, align)   (((addr) + (align) - 1) & ~((align) - 1))",
+      "#define ALIGN_DOWN(addr, align) ((addr) & ~((align) - 1))"
+    ],
+    "description": "Standard 4KB paging alignment macros"
+  },
+  "IDT Descriptor Struct": {
+    "prefix": "idt_entry",
+    "body": [
+      "struct idt_entry {",
+      "    uint16_t isr_low;",
+      "    uint16_t kernel_cs;",
+      "    uint8_t  ist;",
+      "    uint8_t  attributes;",
+      "    uint16_t isr_mid;",
+      "    uint32_t isr_high;",
+      "    uint32_t reserved;",
+      "} __attribute__((packed));"
+    ],
+    "description": "64-bit IDT gate descriptor"
+  },
+  "Header Guard": {
+    "prefix": "headguard",
+    "body": [
+      "#ifndef ${TM_FILENAME_BASE/(.*)/${1:/upcase}/}_H",
+      "#define ${TM_FILENAME_BASE/(.*)/${1:/upcase}/}_H",
+      "",
+      "$0",
+      "",
+      "#endif // ${TM_FILENAME_BASE/(.*)/${1:/upcase}/}_H"
+    ],
+    "description": "Standard C Header include guard"
+  }
+}

@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Debug Kernel (QEMU)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/kernel/bin-x86_64/kernel",
+      "miDebuggerServerAddress": "127.0.0.1:1234",
+      "miDebuggerPath": "/usr/bin/gdb",
+      "cwd": "${workspaceFolder}",
+      "stopAtEntry": false,
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "preLaunchTask": "Run Kernel (Debug Mode)",
+      "postDebugTask": "Kill QEMU",
+      "setupCommands": [
+        {
+          "description": "Enable pretty-printing for gdb",
+          "text": "-enable-pretty-printing",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Set architecture to x86_64",
+          "text": "set arch i386:x86-64",
+          "ignoreFailures": true
+        },
+        {
+          "description": "Break at kernel entry point",
+          "text": "break kmain",
+          "ignoreFailures": true
+        }
+      ]
+    }
+  ]
+}

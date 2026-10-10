@@ -1,0 +1,20 @@
+{
+  "configurations": [
+    {
+      "name": "x86_64 Kernel",
+      "includePath": [
+        "${workspaceFolder}/kernel/src/**",
+        "${workspaceFolder}/kernel/limine-protocol/include/**",
+        "${workspaceFolder}/kernel/freestanding-c-hdrs/include/**"
+      ],
+      "defines": [
+        "__x86_64__=1"
+      ],
+      "compilerPath": "/usr/bin/gcc",
+      "cStandard": "gnu11",
+      "intelliSenseMode": "linux-gcc-x64",
+      "compileCommands": "${workspaceFolder}/compile_commands.json"
+    }
+  ],
+  "version": 4
+}

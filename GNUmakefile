@@ -9,6 +9,9 @@ ARCH := x86_64
 
 # Default user QEMU flags. These are appended to the QEMU command calls.
 QEMUFLAGS := -m 2G
+ifeq ($(ARCH),x86_64)
+    QEMUFLAGS += -debugcon stdio
+endif
 
 # Internal architecture specific variables that should not be changed by the
 # user. x86_64 images get an MBR, the most portable form for BIOS and UEFI.
@@ -101,6 +104,21 @@ run-bios: $(IMAGE_NAME).iso
 		-cdrom $(IMAGE_NAME).iso \
 		-boot d \
 		$(QEMUFLAGS)
+
+.PHONY: run-debug
+run-debug: $(IMAGE_NAME).iso
+	@killall -9 qemu-system-$(ARCH) 2>/dev/null || true
+	@fuser -k 1234/tcp >/dev/null 2>&1 || true
+	@(for i in $$(seq 1 50); do if ss -tlpn | grep -q ":1234 "; then echo "=== QEMU GDB Server ready on port 1234 ==="; break; fi; sleep 0.1; done) &
+	qemu-system-$(ARCH) \
+		$(QEMU_MACHINE_FLAGS) \
+		-cdrom $(IMAGE_NAME).iso \
+		-boot d \
+		-s -S \
+		-d guest_errors \
+		-no-reboot -no-shutdown \
+		$(QEMUFLAGS)
+
 
 .PHONY: run-hdd-bios
 run-hdd-bios: $(IMAGE_NAME).hdd

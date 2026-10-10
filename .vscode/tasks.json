@@ -1,0 +1,70 @@
+{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "Build Kernel (make)",
+      "type": "shell",
+      "command": "make -C ${workspaceFolder}",
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": ["$gcc"],
+      "presentation": {
+        "reveal": "silent",
+        "panel": "shared",
+        "clear": true
+      }
+    },
+    {
+      "label": "Run Kernel in QEMU",
+      "type": "shell",
+      "command": "make -C ${workspaceFolder} run-bios",
+      "group": "test",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Run Kernel (Debug Mode)",
+      "type": "shell",
+      "command": "make -C ${workspaceFolder} run-debug",
+      "group": "test",
+      "isBackground": true,
+      "problemMatcher": {
+        "pattern": {
+          "regexp": "^$"
+        },
+        "background": {
+          "activeOnStart": true,
+          "beginsPattern": "^make.*",
+          "endsPattern": "^=== QEMU GDB Server ready on port 1234 ==="
+        }
+      },
+      "presentation": {
+        "reveal": "always",
+        "panel": "dedicated",
+        "clear": true
+      }
+    },
+    {
+      "label": "Kill QEMU",
+      "type": "shell",
+      "command": "killall -9 qemu-system-x86_64 2>/dev/null || fuser -k 1234/tcp 2>/dev/null || true",
+      "problemMatcher": [],
+      "presentation": {
+        "reveal": "silent"
+      }
+    },
+    {
+      "label": "Clean & Rebuild",
+      "type": "shell",
+      "command": "make -C ${workspaceFolder} clean && make -C ${workspaceFolder}",
+      "problemMatcher": ["$gcc"],
+      "group": "build"
+    }
+  ]
+}
